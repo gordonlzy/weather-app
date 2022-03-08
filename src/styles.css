@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+html {
+    height: 100%;
+}
+
+head {
+    height: 20%;
+}
+
+body {
+    height: 80%;
+}
+
+.main-grid-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sub-grid-container {
+    display: flex;
+    height: 100%;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.grid-item {
+    flex-basis: 31%;
+    flex-grow: 1;
+    text-align: center;
+    border: 1px solid #000000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
