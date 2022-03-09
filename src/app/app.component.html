@@ -1,4 +1,8 @@
 <header>
   <h1 style="text-align: center;">{{title}}</h1>
 </header>
-<app-panel></app-panel>
+<div class="main-grid-container">
+  <div class="sub-grid-container">
+    <app-panel *ngFor="let item of items" class="grid-item"></app-panel>
+  </div>
+</div>
