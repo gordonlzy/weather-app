@@ -6,10 +6,19 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./panel.component.css']
 })
 export class PanelComponent implements OnInit {
+  panelText = '';
   isWaitingInput = false;
+  isReadyForDisplay = false;
 
-  updatePanel() {
-    this.isWaitingInput = !this.isWaitingInput;
+  togglePanel() {
+    if (this.panelText == '') {
+      this.isWaitingInput = true;
+    }
+  }
+
+  handleInput(e: Event) {
+    this.isWaitingInput = false;
+    this.isReadyForDisplay = true;
   }
 
   constructor() { }

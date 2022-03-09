@@ -1,6 +1,9 @@
-<div (click)="updatePanel()" style="width:100%; height:100%; display: flex;">
+<div (click)="togglePanel()" class="main">
     <div class="inputDiv" *ngIf="isWaitingInput">
         <Label>Enter a city:</Label>
-        <input>
+        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />
+    </div>
+    <div class="textDiv" *ngIf="isReadyForDisplay">
+        <p>{{panelText}}</p>
     </div>
 </div>
