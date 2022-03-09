@@ -1,4 +1,7 @@
 <div (click)="togglePanel()" class="main">
+    <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyForDisplay">
+        <button (click)="handleEdit($event)">Edit</button>
+    </div>
     <div class="inputDiv" *ngIf="isWaitingInput">
         <Label>Enter a city:</Label>
         <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />

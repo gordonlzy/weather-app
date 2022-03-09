@@ -21,6 +21,12 @@ export class PanelComponent implements OnInit {
     this.isReadyForDisplay = true;
   }
 
+  handleEdit(e: Event) {
+    this.panelText = '';
+    this.isWaitingInput = true;
+    this.isReadyForDisplay = false;
+  }
+
   constructor() { }
 
   ngOnInit(): void {
