@@ -1,12 +1,17 @@
-<div (click)="togglePanel()" class="main">
-    <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyForDisplay">
+<div (click)="togglePanel()" class="main" [ngClass]="background">
+    <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyToDisplayText">
         <button (click)="handleEdit($event)">Edit</button>
     </div>
-    <div class="inputDiv" *ngIf="isWaitingInput">
+    <div class="inputDiv" *ngIf="hasError">
+        <p>Error: {{error}}</p>
+        <Label>Enter another city:</Label>
+        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />
+    </div>
+    <div class="inputDiv" *ngIf="isWaitingFirstInput">
         <Label>Enter a city:</Label>
         <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />
     </div>
-    <div class="textDiv" *ngIf="isReadyForDisplay">
+    <div class="textDiv" *ngIf="isReadyToDisplayText">
         <p>{{panelText}}</p>
     </div>
 </div>
