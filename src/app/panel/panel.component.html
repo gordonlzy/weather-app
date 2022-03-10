@@ -1,15 +1,15 @@
 <div (click)="togglePanel()" class="main" [ngStyle]="bkURL">
     <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyToDisplayText">
-        <button (click)="handleEdit($event)">Edit</button>
+        <button (click)="handleEdit()">Edit</button>
     </div>
     <div class="inputDiv" *ngIf="hasError">
         <p>Error: {{error}}</p>
         <Label>Enter another city:</Label>
-        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />
+        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput()" />
     </div>
     <div class="inputDiv" *ngIf="isWaitingFirstInput">
         <Label>Enter a city:</Label>
-        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput($event)" />
+        <input [(ngModel)]="panelText" type="text" (keydown.enter)="handleInput()" />
     </div>
     <div class="textDiv" *ngIf="isReadyToDisplayText">
         <p>{{panelText}}</p>

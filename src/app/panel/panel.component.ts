@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Injectable } from '@angular/core';
-import { WeatherApiService } from '../weather-api.service';
-import { db, Panel } from '../db';
-import { OnlineOfflineService } from '../online-offline.service';
+import { WeatherApiService } from '../services/weather-api.service';
+import { OnlineOfflineService } from '../services/online-offline.service';
+import { DatabaseService } from '../services/database.service';
+import { PanelService } from '../services/panel.service';
 
 @Component({
   selector: 'app-panel',
@@ -22,31 +23,6 @@ export class PanelComponent implements OnInit {
   isWaitingFirstInput = false;
   isReadyToDisplayText = false;
   hasError = false;
-
-  capitalizeCity(city: string) {
-    var words = city.toLowerCase().split(' ');
-    for (var i = 0; i < words.length; i++) {
-      words[i] = words[i].charAt(0).toUpperCase() +
-      words[i].substring(1);
-    }
-    return words.join(' ');
-  }
-
-  async addPanelToDB(panel: Panel) {
-    db.panel
-      .put(panel)
-      .then(async () => {
-        const allItems: Panel[] = await db.panel.toArray();
-        console.log("saved", allItems);
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  }
-
-  async retrivePanelFromDB(city: string) {
-    return db.panel.get(city);
-  }
 
   togglePanel() {
     if (this.panelText == '' && !this.hasError) {
@@ -80,15 +56,20 @@ export class PanelComponent implements OnInit {
     }
   }
 
-  changeWeatherToURL(weather: string) {
-    if (weather == "Clear") {
-      return "/assets/sunny.jpg";
-    } else if (weather == "Clouds" || weather == "Haze" || weather == "Mist" || weather == "Smoke") {
-      return "/assets/clouds.jpg";
-    } else if (weather == "Rain") {
-      return "/assets/rainy.jpg";
-    }
-    return "";
+  updatePanel() {
+    this.weatherAPIService
+      .fetchData(this.panelText)
+      .subscribe(async data => {
+        const weather = data["weather"][0]["main"];
+        const newPanel = await this.panelService.createNewPanel(this.panelText, weather, this.time);
+
+        this.setTimeToCurrentTime();
+        this.setReadyToDisplay(true, '');
+        this.changeBackground(weather);
+        this.databaseService.addPanelToDB(newPanel)
+      }, err => {
+        this.setReadyToDisplay(false, err.error.message);
+      });
   }
 
   runQuery() {
@@ -103,38 +84,13 @@ export class PanelComponent implements OnInit {
     this.time = new Date().toLocaleTimeString();
   }
 
-  async createNewPanel(weather: string) {
-    return {
-      city: this.capitalizeCity(this.panelText),
-      weather: weather,
-      time: this.time,
-      image: await (await fetch(this.changeWeatherToURL(weather))).blob()
-    }
-  }
-
-  updatePanel() {
-    this.weatherAPIService
-      .fetchData(this.panelText)
-      .subscribe(async data => {
-        const weather = data["weather"][0]["main"];
-        const newPanel = await this.createNewPanel(weather);
-
-        this.setTimeToCurrentTime();
-        this.setReadyToDisplay(true, '');
-        this.changeBackground(weather);
-        this.addPanelToDB(newPanel)
-      }, err => {
-        this.setReadyToDisplay(false, err.error.message);
-      });
-  }
-
-  async handleInput(e: Event) {
-    this.panelText = this.capitalizeCity(this.panelText);
+  async handleInput() {
+    this.panelText = this.panelService.capitalizeCity(this.panelText);
     this.isWaitingFirstInput = false;
     if (this.onlineOfflineService.isOnline) {
       this.runQuery();
     } else {
-      const panel = await this.retrivePanelFromDB(this.panelText);
+      const panel = await this.databaseService.retrivePanelFromDB(this.panelText);
       if (panel) {
         const imageSource = window.URL.createObjectURL(panel.image);
         this.updateBackgroundImage(imageSource)
@@ -147,7 +103,7 @@ export class PanelComponent implements OnInit {
     }
   }
 
-  handleEdit(e: Event) {
+  handleEdit() {
     this.panelText = '';
     this.isWaitingFirstInput = true;
     this.isReadyToDisplayText = false;
@@ -170,7 +126,8 @@ export class PanelComponent implements OnInit {
     })
   }
 
-  constructor(private weatherAPIService: WeatherApiService, private onlineOfflineService: OnlineOfflineService) {
+  constructor(private weatherAPIService: WeatherApiService, private onlineOfflineService: OnlineOfflineService, 
+    private databaseService: DatabaseService, private panelService: PanelService) {
     this.registerToEvents(onlineOfflineService);
   }
 
