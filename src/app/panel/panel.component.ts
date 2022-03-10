@@ -28,7 +28,7 @@ export class PanelComponent implements OnInit {
   changeBackground(weather:string) {
     if (weather == "Clear") {
       this.background = {'sunny-background': true, 'clouds-background': false, 'rainy-background': false}
-    } else if (weather == "Clouds" || weather == "Haze") {
+    } else if (weather == "Clouds" || weather == "Haze" || weather == "Mist") {
       this.background = {'sunny-background': false, 'clouds-background': true, 'rainy-background': false}
     } else if (weather == "Rain") {
       this.background = {'sunny-background': false, 'clouds-background': false, 'rainy-background': true}
