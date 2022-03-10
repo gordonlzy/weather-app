@@ -13,6 +13,7 @@ export class PanelComponent implements OnInit {
   panelText = '';
   error = '';
   time = '';
+  intervalID: any;
 
   isWaitingFirstInput = false;
   isReadyToDisplayText = false;
@@ -21,7 +22,7 @@ export class PanelComponent implements OnInit {
   background = {'sunny-background': false, 'clouds-background': false, 'rainy-background': false}
 
   togglePanel() {
-    if (this.panelText == '') {
+    if (this.panelText == '' && !this.hasError) {
       this.isWaitingFirstInput = true;
     }
   }
@@ -37,8 +38,7 @@ export class PanelComponent implements OnInit {
     return null;
   }
 
-  async handleInput(e: Event) {
-    this.isWaitingFirstInput = false;
+  updatePanel() {
     this.weatherAPIService
       .fetchData(this.panelText)
       .subscribe(data => {
@@ -52,6 +52,15 @@ export class PanelComponent implements OnInit {
         this.isReadyToDisplayText = false;
         this.error = err.error.message;
       });
+  }
+
+  handleInput(e: Event) {
+    clearInterval(this.intervalID);
+    this.isWaitingFirstInput = false;
+    this.updatePanel();
+    this.intervalID = setInterval(() => {
+      this.updatePanel();
+    }, 20000);
   }
 
   handleEdit(e: Event) {
