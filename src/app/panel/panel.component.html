@@ -1,7 +1,4 @@
-<div (click)="togglePanel()" class="main" [ngStyle]="bkURL">
-    <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyToDisplayText">
-        <button (click)="handleEdit()">Edit</button>
-    </div>
+<div (click)="togglePanel()" class="main border border-dark border-1 rounded-2" [ngStyle]="bkURL">
     <div class="inputDiv" *ngIf="hasError">
         <p>Error: {{error}}</p>
         <Label>Enter another city:</Label>
@@ -14,5 +11,8 @@
     <div class="textDiv" *ngIf="isReadyToDisplayText">
         <p>{{panelText}}</p>
         <p>Last updated: {{time}}</p>
+    </div>
+    <div style="position: relative; bottom: 12%;" *ngIf="isReadyToDisplayText">
+        <button class="btn-txt btn btn-dark" (click)="handleEdit()">Change City</button>
     </div>
 </div>

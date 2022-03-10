@@ -1,13 +1,15 @@
 html {
     height: 100%;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 head {
-    height: 20%;
+    height: 10%;
 }
 
 body {
-    height: 80%;
+    height: 88%;
 }
 
 .main-grid-container {
@@ -20,14 +22,13 @@ body {
     display: flex;
     height: 100%;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
 }
 
 .grid-item {
-    flex-basis: 31%;
+    flex-basis: 32%;
     flex-grow: 1;
     text-align: center;
-    border: 1px solid #000000;
 
     display: flex;
     justify-content: center;
