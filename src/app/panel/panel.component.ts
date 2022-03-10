@@ -73,11 +73,13 @@ export class PanelComponent implements OnInit {
   }
 
   runQuery() {
-    clearInterval(this.intervalID);
-    this.updatePanel();
-    this.intervalID = setInterval(() => {
+    if (this.panelText != '' && !this.isWaitingFirstInput && !this.hasError) {
+      clearInterval(this.intervalID);
       this.updatePanel();
-    }, 20000);
+      this.intervalID = setInterval(() => {
+        this.updatePanel();
+      }, 20000);
+    }
   }
 
   setTimeToCurrentTime() {
@@ -104,6 +106,7 @@ export class PanelComponent implements OnInit {
   }
 
   handleEdit() {
+    clearInterval(this.intervalID);
     this.panelText = '';
     this.isWaitingFirstInput = true;
     this.isReadyToDisplayText = false;
@@ -113,12 +116,7 @@ export class PanelComponent implements OnInit {
     onlineOfflineService.connectionChanged.subscribe(online => {
       if (online) {
         console.log("went online");
-        if (this.panelText != '') {
-          this.updatePanel();
-          this.intervalID = setInterval(() => {
-            this.updatePanel();
-          }, 20000);
-        }
+        this.runQuery();
       } else {
         console.log("went offline");
         clearInterval(this.intervalID);
