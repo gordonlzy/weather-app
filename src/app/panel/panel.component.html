@@ -1,4 +1,4 @@
-<div (click)="togglePanel()" class="main" [ngClass]="background">
+<div (click)="togglePanel()" class="main" [ngStyle]="bkURL">
     <div style="position: absolute; top: 10%; right: 5%;" *ngIf="isReadyToDisplayText">
         <button (click)="handleEdit($event)">Edit</button>
     </div>
