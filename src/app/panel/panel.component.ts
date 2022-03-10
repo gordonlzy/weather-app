@@ -12,6 +12,7 @@ import { WeatherApiService } from '../weather-api.service';
 export class PanelComponent implements OnInit {
   panelText = '';
   error = '';
+  time = '';
 
   isWaitingFirstInput = false;
   isReadyToDisplayText = false;
@@ -42,6 +43,7 @@ export class PanelComponent implements OnInit {
       .fetchData(this.panelText)
       .subscribe(data => {
         this.error = '';
+        this.time = new Date().toLocaleTimeString();
         this.changeBackground(data["weather"][0]["main"]);
         this.hasError = false;
         this.isReadyToDisplayText = true;
