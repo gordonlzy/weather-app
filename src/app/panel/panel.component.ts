@@ -23,8 +23,6 @@ export class PanelComponent implements OnInit {
   isReadyToDisplayText = false;
   hasError = false;
 
-  background = {'sunny-background': false, 'clouds-background': false, 'rainy-background': false}
-
   capitalizeCity(city: string) {
     var words = city.toLowerCase().split(' ');
     for (var i = 0; i < words.length; i++) {
@@ -46,7 +44,7 @@ export class PanelComponent implements OnInit {
       })
   }
 
-  async retrivePanel(city: string) {
+  async retrivePanelFromDB(city: string) {
     return db.panel.get(city);
   }
 
@@ -56,15 +54,30 @@ export class PanelComponent implements OnInit {
     }
   }
 
+  updateBackgroundImage(url: string) {
+    this.bkURL = {'background-image': `url(${url})`}
+  }
+
+  setReadyToDisplay(ready: boolean, errorMessage: string) {
+    if (ready) {
+      this.error = '';
+      this.hasError = false;
+      this.isReadyToDisplayText = true;
+    } else {
+      this.error = errorMessage;
+      this.hasError = true;
+      this.isReadyToDisplayText = false;
+    }
+  }
+
   changeBackground(weather:string) {
     if (weather == "Clear") {
-      this.bkURL = {'background-image': 'url(/assets/sunny.jpg)'}
+      this.updateBackgroundImage('/assets/sunny.jpg');
     } else if (weather == "Clouds" || weather == "Haze" || weather == "Mist" || weather == "Smoke") {
-      this.bkURL = {'background-image': 'url(/assets/clouds.jpg)'}
+      this.updateBackgroundImage('/assets/clouds.jpg');
     } else if (weather == "Rain") {
-      this.bkURL = {'background-image': 'url(/assets/rainy.jpg)'}
+      this.updateBackgroundImage('/assets/rainy.jpg');
     }
-    return null;
   }
 
   changeWeatherToURL(weather: string) {
@@ -78,25 +91,40 @@ export class PanelComponent implements OnInit {
     return "";
   }
 
+  runQuery() {
+    clearInterval(this.intervalID);
+    this.updatePanel();
+    this.intervalID = setInterval(() => {
+      this.updatePanel();
+    }, 20000);
+  }
+
+  setTimeToCurrentTime() {
+    this.time = new Date().toLocaleTimeString();
+  }
+
+  async createNewPanel(weather: string) {
+    return {
+      city: this.capitalizeCity(this.panelText),
+      weather: weather,
+      time: this.time,
+      image: await (await fetch(this.changeWeatherToURL(weather))).blob()
+    }
+  }
+
   updatePanel() {
     this.weatherAPIService
       .fetchData(this.panelText)
       .subscribe(async data => {
-        this.error = '';
-        this.time = new Date().toLocaleTimeString();
-        this.changeBackground(data["weather"][0]["main"]);
-        this.hasError = false;
-        this.isReadyToDisplayText = true;
-        this.addPanelToDB({
-          city: this.capitalizeCity(this.panelText),
-          weather: data["weather"][0]["main"],
-          time: this.time,
-          image: await (await fetch(this.changeWeatherToURL(data["weather"][0]["main"]))).blob()
-        })
+        const weather = data["weather"][0]["main"];
+        const newPanel = await this.createNewPanel(weather);
+
+        this.setTimeToCurrentTime();
+        this.setReadyToDisplay(true, '');
+        this.changeBackground(weather);
+        this.addPanelToDB(newPanel)
       }, err => {
-        this.hasError = true;
-        this.isReadyToDisplayText = false;
-        this.error = err.error.message;
+        this.setReadyToDisplay(false, err.error.message);
       });
   }
 
@@ -104,26 +132,17 @@ export class PanelComponent implements OnInit {
     this.panelText = this.capitalizeCity(this.panelText);
     this.isWaitingFirstInput = false;
     if (this.onlineOfflineService.isOnline) {
-      clearInterval(this.intervalID);
-      this.updatePanel();
-      this.intervalID = setInterval(() => {
-        this.updatePanel();
-      }, 20000);
+      this.runQuery();
     } else {
-      const panel = await this.retrivePanel(this.panelText);
+      const panel = await this.retrivePanelFromDB(this.panelText);
       if (panel) {
         const imageSource = window.URL.createObjectURL(panel.image);
-        this.bkURL = {'background-image': `url(${imageSource})`}
-
-        this.error = '';
+        this.updateBackgroundImage(imageSource)
+        this.setReadyToDisplay(true, '');
         this.panelText = panel.city;
         this.time = panel.time;
-        this.hasError = false;
-        this.isReadyToDisplayText = true;
       } else {
-        this.hasError = true;
-        this.isReadyToDisplayText = false;
-        this.error = 'No available data offline';
+        this.setReadyToDisplay(false, 'No available data offline');
       }
     }
   }
